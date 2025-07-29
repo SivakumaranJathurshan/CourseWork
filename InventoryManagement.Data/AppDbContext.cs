@@ -20,6 +20,7 @@ namespace InventoryManagement.Data
         public DbSet<InventoryItem> InventoryItems { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -63,6 +64,10 @@ namespace InventoryManagement.Data
 
             modelBuilder.Entity<Order>()
                 .HasIndex(o => o.OrderNumber)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
                 .IsUnique();
 
             // Seed data

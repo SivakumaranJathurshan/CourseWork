@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace InventoryManagement.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitProject : Migration
+    public partial class InitDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -67,6 +67,24 @@ namespace InventoryManagement.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Suppliers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    FirstName = table.Column<string>(type: "TEXT", nullable: false),
+                    LastName = table.Column<string>(type: "TEXT", nullable: false),
+                    Email = table.Column<string>(type: "TEXT", nullable: false),
+                    PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
+                    RegisteredOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    LastLoginOn = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -160,9 +178,9 @@ namespace InventoryManagement.Data.Migrations
                 columns: new[] { "Id", "CreatedDate", "Description", "Name", "UpdatedDate" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5729), "Electronic devices and components", "Electronics", new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5732) },
-                    { 2, new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5736), "Apparel and accessories", "Clothing", new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5737) },
-                    { 3, new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5738), "Books and publications", "Books", new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5738) }
+                    { 1, new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9596), "Electronic devices and components", "Electronics", new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9599) },
+                    { 2, new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9602), "Apparel and accessories", "Clothing", new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9603) },
+                    { 3, new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9604), "Books and publications", "Books", new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9604) }
                 });
 
             migrationBuilder.InsertData(
@@ -170,8 +188,8 @@ namespace InventoryManagement.Data.Migrations
                 columns: new[] { "Id", "Address", "ContactPerson", "CreatedDate", "Email", "Name", "Phone", "UpdatedDate" },
                 values: new object[,]
                 {
-                    { 1, "", "John Doe", new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5943), "john@techsupply.com", "Tech Supply Co", "123-456-7890", new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5943) },
-                    { 2, "", "Jane Smith", new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5947), "jane@fashionworld.com", "Fashion World", "098-765-4321", new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5947) }
+                    { 1, "", "John Doe", new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9768), "john@techsupply.com", "Tech Supply Co", "123-456-7890", new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9768) },
+                    { 2, "", "Jane Smith", new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9776), "jane@fashionworld.com", "Fashion World", "098-765-4321", new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9776) }
                 });
 
             migrationBuilder.CreateIndex(
@@ -210,6 +228,12 @@ namespace InventoryManagement.Data.Migrations
                 name: "IX_Products_SupplierId",
                 table: "Products",
                 column: "SupplierId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -220,6 +244,9 @@ namespace InventoryManagement.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "OrderItems");
+
+            migrationBuilder.DropTable(
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Orders");

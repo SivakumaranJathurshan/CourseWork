@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InventoryManagement.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250728175912_InitProject")]
-    partial class InitProject
+    [Migration("20250729181237_InitDatabase")]
+    partial class InitDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,26 +50,26 @@ namespace InventoryManagement.Data.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5729),
+                            CreatedDate = new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9596),
                             Description = "Electronic devices and components",
                             Name = "Electronics",
-                            UpdatedDate = new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5732)
+                            UpdatedDate = new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9599)
                         },
                         new
                         {
                             Id = 2,
-                            CreatedDate = new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5736),
+                            CreatedDate = new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9602),
                             Description = "Apparel and accessories",
                             Name = "Clothing",
-                            UpdatedDate = new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5737)
+                            UpdatedDate = new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9603)
                         },
                         new
                         {
                             Id = 3,
-                            CreatedDate = new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5738),
+                            CreatedDate = new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9604),
                             Description = "Books and publications",
                             Name = "Books",
-                            UpdatedDate = new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5738)
+                            UpdatedDate = new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9604)
                         });
                 });
 
@@ -281,23 +281,59 @@ namespace InventoryManagement.Data.Migrations
                             Id = 1,
                             Address = "",
                             ContactPerson = "John Doe",
-                            CreatedDate = new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5943),
+                            CreatedDate = new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9768),
                             Email = "john@techsupply.com",
                             Name = "Tech Supply Co",
                             Phone = "123-456-7890",
-                            UpdatedDate = new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5943)
+                            UpdatedDate = new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9768)
                         },
                         new
                         {
                             Id = 2,
                             Address = "",
                             ContactPerson = "Jane Smith",
-                            CreatedDate = new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5947),
+                            CreatedDate = new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9776),
                             Email = "jane@fashionworld.com",
                             Name = "Fashion World",
                             Phone = "098-765-4321",
-                            UpdatedDate = new DateTime(2025, 7, 28, 17, 59, 11, 507, DateTimeKind.Utc).AddTicks(5947)
+                            UpdatedDate = new DateTime(2025, 7, 29, 18, 12, 36, 785, DateTimeKind.Utc).AddTicks(9776)
                         });
+                });
+
+            modelBuilder.Entity("InventoryManagement.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LastLoginOn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("RegisteredOn")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("InventoryManagement.Models.InventoryItem", b =>
