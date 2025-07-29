@@ -4,9 +4,19 @@ using InventoryManagement.Data.Repositories.Interfaces;
 using InventoryManagement.Services;
 using InventoryManagement.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.File(builder.Configuration["SeriLog:Path"], rollingInterval: RollingInterval.Day)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 
@@ -66,6 +76,15 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     context.Database.EnsureCreated();
+}
+
+try
+{
+    Log.Information("Application Started!");
+}
+catch (Exception ex)
+{
+    throw new Exception("Logger not working", ex);
 }
 
 app.Run();
