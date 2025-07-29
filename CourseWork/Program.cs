@@ -1,4 +1,8 @@
 using InventoryManagement.Data;
+using InventoryManagement.Data.Repositories;
+using InventoryManagement.Data.Repositories.Interfaces;
+using InventoryManagement.Services;
+using InventoryManagement.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -14,6 +18,21 @@ builder.Services.AddSwaggerGen();
 // Add Entity Framework
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register Repositories
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
+// Register Services
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+
 
 // Add CORS
 builder.Services.AddCors(options =>
