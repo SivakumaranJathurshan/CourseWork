@@ -3,6 +3,7 @@ using InventoryManagement.Data.Repositories;
 using InventoryManagement.Data.Repositories.Interfaces;
 using InventoryManagement.Services;
 using InventoryManagement.Services.Interfaces;
+using InventoryManagement.Services.Utility;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System;
@@ -42,6 +43,9 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+
+// Register Utility
+builder.Services.AddSingleton(typeof(ILoggerService<>), typeof(LoggerService<>));
 
 
 // Add CORS

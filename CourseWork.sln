@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryManagement.Data", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryManagement.Services", "InventoryManagement.Services\InventoryManagement.Services.csproj", "{8F6A959C-4740-7CE5-1F10-F65CCED68DDE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryManagement.Tests", "InventoryManagement.Tests\InventoryManagement.Tests.csproj", "{1388F588-FF03-4C72-B68A-F579BCD0C5DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{8F6A959C-4740-7CE5-1F10-F65CCED68DDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F6A959C-4740-7CE5-1F10-F65CCED68DDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F6A959C-4740-7CE5-1F10-F65CCED68DDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1388F588-FF03-4C72-B68A-F579BCD0C5DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1388F588-FF03-4C72-B68A-F579BCD0C5DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1388F588-FF03-4C72-B68A-F579BCD0C5DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1388F588-FF03-4C72-B68A-F579BCD0C5DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -43,6 +49,7 @@ Global
 		{9463740B-5A25-1E9C-17F3-98468CFB064A} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{BE10C66A-E6F1-2621-A9E7-1F5865E7B2F1} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{8F6A959C-4740-7CE5-1F10-F65CCED68DDE} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{1388F588-FF03-4C72-B68A-F579BCD0C5DD} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {271627B4-C245-44D8-A202-7760682BC020}
