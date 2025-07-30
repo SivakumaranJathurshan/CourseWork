@@ -12,14 +12,14 @@ WORKDIR /src
 # Copy solution and project files
 COPY CourseWork.sln ./CourseWork/
 
-COPY CourseWork/CourseWork.csproj ./CourseWork/CourseWork
+COPY CourseWork/CourseWork.csproj ./CourseWork/CourseWork/
 COPY InventoryManagement.Models/InventoryManagement.Models.csproj ./CourseWork/InventoryManagement.Models/
 COPY InventoryManagement.Data/InventoryManagement.Data.csproj ./CourseWork/InventoryManagement.Data/
 COPY InventoryManagement.Services/InventoryManagement.Services.csproj ./CourseWork/InventoryManagement.Services/
 COPY InventoryManagement.Tests/InventoryManagement.Tests.csproj ./CourseWork/InventoryManagement.Tests/
 
 # Restore dependencies
-RUN dotnet restore ./CourseWork/CourseWork.sln
+RUN dotnet restore /src/CourseWork/CourseWork.sln
 
 # Copy the rest of the source code
 COPY . .
@@ -27,6 +27,10 @@ COPY . .
 # Build the application
 WORKDIR /src/CourseWork/CourseWork
 RUN dotnet build CourseWork.csproj -c $BUILD_CONFIGURATION -o /app/build
+
+# Run tests before publishing
+WORKDIR /src/CourseWork/InventoryManagement.Tests
+RUN dotnet test --no-build --logger "trx;LogFileName=test_results.trx" --results-directory /app/test-results
 
 # Publish the application
 FROM build AS publish

@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    // Define variables for the project root directory and compose file
+    environment {
+        PROJECT_ROOT = "C:/Dev Environment/CourseWork"  // Usually Jenkins workspace is the root
+        DOCKER_COMPOSE_FILE = "docker-compose.yaml"     // Your docker-compose file name
+    }
+
+    stages {
+        stage('Print Environment Info') {
+            steps {
+                echo "Project Root Directory: ${env.PROJECT_ROOT}"
+                echo "Docker Compose File: ${env.DOCKER_COMPOSE_FILE}"
+            }
+        }
+
+        stage('Move to Project Root Directory') {
+            steps {
+                script {
+                    // Change directory to project root explicitly (optional, WORKSPACE is default)
+                    dir(env.PROJECT_ROOT) {
+                        echo "Moved to project root directory."
+                    }
+                }
+            }
+        }
+
+        stage('Run Docker Compose') {
+            steps {
+                script {
+                    dir(env.PROJECT_ROOT) {
+                        // Run docker-compose command using the variable for the file name
+                        bat "docker-compose -f ${env.DOCKER_COMPOSE_FILE} up -d"
+                    }
+                }
+            }
+        }
+    }
+}
