@@ -11,12 +11,21 @@ using System.Text;
 
 namespace InventoryManagement.Services
 {
+    /// <summary>
+    /// Service responsible for handling user authentication and registration logic.
+    /// </summary>
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _repo;
         private readonly Microsoft.AspNetCore.Identity.IPasswordHasher<User> _hasher;
         private readonly IConfiguration _config;
 
+        /// <summary>
+        /// Initializes a new instance of the AuthService.
+        /// </summary>
+        /// <param name="repo">User repository to interact with user data store.</param>
+        /// <param name="hasher">Password hasher for secure password hashing and verification.</param>
+        /// <param name="config">Application configuration to access JWT settings.</param>
         public AuthService(IUserRepository repo, Microsoft.AspNetCore.Identity.IPasswordHasher<User> hasher, IConfiguration config)
         {
             _repo = repo;
@@ -24,10 +33,15 @@ namespace InventoryManagement.Services
             _config = config;
         }
 
+        /// <summary>
+        /// Registers a new user if the email is not already taken and passwords match.
+        /// </summary>
+        /// <param name="request">DTO containing registration data.</param>
+        /// <returns>A tuple indicating success or failure and an error message if failed.</returns>
         public (bool Success, string? Error) Register(RegisterDTO request)
         {
             if (request.Password != request.ConfirmPassword)
-                return (false, "PPassword not matched");
+                return (false, "Password not matched");
 
             if (_repo.GetByEmail(request.Email) != null)
                 return (false, "User already exists");
@@ -39,6 +53,11 @@ namespace InventoryManagement.Services
             return (true, null);
         }
 
+        /// <summary>
+        /// Authenticates the user and generates a JWT token if credentials are valid.
+        /// </summary>
+        /// <param name="request">DTO containing login credentials.</param>
+        /// <returns>A tuple indicating success, a JWT token if successful, and an error message if failed.</returns>
         public (bool Success, string? Token, string? Error) Signin(LoginDTO request)
         {
             var user = _repo.GetByEmail(request.Email);
@@ -53,6 +72,11 @@ namespace InventoryManagement.Services
             return (true, token, null);
         }
 
+        /// <summary>
+        /// Generates a signed JWT token with claims based on user identity.
+        /// </summary>
+        /// <param name="user">The authenticated user object.</param>
+        /// <returns>A JWT token string.</returns>
         private string GenerateJwtToken(User user)
         {
             var settings = _config.GetSection("Jwt");

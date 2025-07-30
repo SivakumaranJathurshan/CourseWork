@@ -2,14 +2,12 @@
 using InventoryManagement.Models;
 using InventoryManagement.Services.Interfaces;
 using InventoryManagement.Services.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InventoryManagement.Services
 {
+    /// <summary>
+    /// Service class to handle business logic for Supplier-related operations.
+    /// </summary>
     public class SupplierService : ISupplierService
     {
         private readonly ISupplierRepository _supplierRepository;
@@ -21,6 +19,10 @@ namespace InventoryManagement.Services
             _logger = logger;
         }
 
+        /// <summary>
+        /// Retrieves all suppliers from the database.
+        /// </summary>
+        /// <returns>A list of Supplier objects.</returns>
         public async Task<IEnumerable<Supplier>> GetAllSuppliersAsync()
         {
             try
@@ -34,9 +36,15 @@ namespace InventoryManagement.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves a specific supplier by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the supplier.</param>
+        /// <returns>The Supplier object if found; otherwise, null.</returns>
         public async Task<Supplier> GetSupplierByIdAsync(int id)
         {
-            try { 
+            try
+            {
                 return await _supplierRepository.GetByIdAsync(id);
             }
             catch (Exception ex)
@@ -46,9 +54,15 @@ namespace InventoryManagement.Services
             }
         }
 
+        /// <summary>
+        /// Creates a new supplier record in the database.
+        /// </summary>
+        /// <param name="supplier">The supplier object to be created.</param>
+        /// <returns>The created Supplier object.</returns>
         public async Task<Supplier> CreateSupplierAsync(Supplier supplier)
         {
-            try { 
+            try
+            {
                 supplier.CreatedDate = DateTime.UtcNow;
                 supplier.UpdatedDate = DateTime.UtcNow;
                 return await _supplierRepository.AddAsync(supplier);
@@ -60,6 +74,12 @@ namespace InventoryManagement.Services
             }
         }
 
+        /// <summary>
+        /// Updates an existing supplier record.
+        /// </summary>
+        /// <param name="id">The ID of the supplier to update.</param>
+        /// <param name="supplier">The supplier object containing updated values.</param>
+        /// <returns>The updated Supplier object if the update was successful; otherwise, null.</returns>
         public async Task<Supplier> UpdateSupplierAsync(int id, Supplier supplier)
         {
             try
@@ -83,6 +103,11 @@ namespace InventoryManagement.Services
             }
         }
 
+        /// <summary>
+        /// Deletes a supplier from the database based on its ID.
+        /// </summary>
+        /// <param name="id">The ID of the supplier to delete.</param>
+        /// <returns>True if the deletion was successful; otherwise, false.</returns>
         public async Task<bool> DeleteSupplierAsync(int id)
         {
             try
@@ -96,9 +121,14 @@ namespace InventoryManagement.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves all suppliers along with their associated products.
+        /// </summary>
+        /// <returns>A list of Supplier objects with included product data.</returns>
         public async Task<IEnumerable<Supplier>> GetSuppliersWithProductsAsync()
         {
-            try { 
+            try
+            {
                 return await _supplierRepository.GetSuppliersWithProductsAsync();
             }
             catch (Exception ex)
@@ -108,5 +138,4 @@ namespace InventoryManagement.Services
             }
         }
     }
-
 }
