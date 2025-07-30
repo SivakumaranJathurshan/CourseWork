@@ -7,6 +7,7 @@ using InventoryManagement.Services.Interfaces;
 using InventoryManagement.Services.Utility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
@@ -14,6 +15,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System;
 using System.Text;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -119,6 +121,17 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
+});
+
+// Add concurrency limiter policy
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddConcurrencyLimiter("CommonPolicy", opt =>
+    {
+        opt.PermitLimit = 10;
+        opt.QueueLimit = 2;
+        opt.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
+    }).RejectionStatusCode = 429;
 });
 
 var app = builder.Build();

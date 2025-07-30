@@ -4,10 +4,12 @@ using InventoryManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace CourseWork.Controllers
 {
     [Route("api/[controller]")]
+    [EnableRateLimiting("CommonPolicy")]
     [ApiController]
     public class AuthController : ControllerBase
     {

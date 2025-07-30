@@ -3,11 +3,13 @@ using InventoryManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace CourseWork.Controllers
 {
     [Route("api/[controller]")]
     [Authorize]
+    [EnableRateLimiting("CommonPolicy")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
