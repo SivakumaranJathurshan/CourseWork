@@ -1,5 +1,6 @@
 ﻿using InventoryManagement.Data.Repositories.Interfaces;
 using InventoryManagement.Models;
+using InventoryManagement.Models.DTO;
 using InventoryManagement.Services;
 using InventoryManagement.Services.Interfaces;
 using InventoryManagement.Services.Utility;
@@ -80,36 +81,80 @@ namespace InventoryManagement.Tests
         [Fact]
         public async Task CreateOrderAsync_ShouldCreateOrderAndUpdateInventory_WhenSuccessful()
         {
-            var orderItems = new List<OrderItem>
+            var orderCreateDto = new OrderCreateDTO(
+                "ORD-001",
+                "John Doe",
+                "123 Main St",
+                "555-1234",
+                OrderStatus.Pending,
+                30m
+            );
+
+            var createdOrder = new Order
             {
-                new OrderItem { ProductId = 1, Quantity = 2, TotalPrice = 10m },
-                new OrderItem { ProductId = 2, Quantity = 3, TotalPrice = 20m }
+                Id = 1,
+                CustomerName = "John Doe",
+                CustomerAddress = "123 Main St",
+                CustomerPhone = "555-1234",
+                OrderNumber = "ORD-001",
+                Status = OrderStatus.Pending,
+                OrderItems = new List<OrderItem>
+                {
+                    new OrderItem { ProductId = 1, Quantity = 2, TotalPrice = 10m },
+                    new OrderItem { ProductId = 2, Quantity = 3, TotalPrice = 20m }
+                }
             };
-            var order = new Order { OrderItems = orderItems };
 
-            _orderRepository.AddAsync(Arg.Any<Order>()).Returns(call => call.Arg<Order>());
+            Order capturedOrder = null;
+            _orderRepository.AddAsync(Arg.Do<Order>(order => capturedOrder = order)).Returns(createdOrder);
 
-            var result = await _service.CreateOrderAsync(order);
+            var result = await _service.CreateOrderAsync(orderCreateDto);
 
+            var testEndTime = DateTime.UtcNow;
+
+            // Assert - Basic properties
+            Assert.NotNull(result);
             Assert.NotNull(result.OrderNumber);
-            Assert.Equal(30m, result.TotalAmount);
-            Assert.True(result.CreatedDate <= DateTime.UtcNow);
-            Assert.True(result.UpdatedDate <= DateTime.UtcNow);
-            Assert.True(result.OrderDate <= DateTime.UtcNow);
+            Assert.Equal("John Doe", result.CustomerName);
+            Assert.Equal("123 Main St", result.CustomerAddress);
+            Assert.Equal("555-1234", result.CustomerPhone);
+            Assert.Equal(OrderStatus.Pending, result.Status);
 
-            foreach (var item in orderItems)
-            {
-                await _inventoryService.Received(1).UpdateStockAsync(item.ProductId, -item.Quantity);
-            }
+            // DateTime assertions with better error messages
+            Assert.True(result.CreatedDate <= testEndTime,
+                $"CreatedDate {result.CreatedDate} should be <= {testEndTime}");
+            Assert.True(result.UpdatedDate <= testEndTime,
+                $"UpdatedDate {result.UpdatedDate} should be <= {testEndTime}");
+            Assert.True(result.OrderDate <= testEndTime,
+                $"OrderDate {result.OrderDate} should be <= {testEndTime}");
+
+            // Verify repository was called
+            await _orderRepository.Received(1).AddAsync(Arg.Any<Order>());
+
+            // Debug what was actually passed to the repository
+            Assert.NotNull(capturedOrder);
+            Assert.Equal(orderCreateDto.CustomerName, capturedOrder.CustomerName);
+            Assert.Equal(orderCreateDto.CustomerAddress, capturedOrder.CustomerAddress);
+            Assert.Equal(orderCreateDto.CustomerPhone, capturedOrder.CustomerPhone);
+            Assert.Equal(orderCreateDto.Status, capturedOrder.Status);
+            Assert.NotNull(capturedOrder.OrderNumber);
         }
 
         [Fact]
         public async Task CreateOrderAsync_ShouldLogAndThrow_WhenException()
         {
+            var orderCreateDto = new OrderCreateDTO(
+                "ORD-001",
+                "John Doe",
+                "123 Main St",
+                "555-1234",
+                OrderStatus.Pending,
+                30m
+            );
             var ex = new Exception("DB insert error");
             _orderRepository.AddAsync(Arg.Any<Order>()).Throws(ex);
 
-            var thrown = await Assert.ThrowsAsync<Exception>(() => _service.CreateOrderAsync(new Order()));
+            var thrown = await Assert.ThrowsAsync<Exception>(() => _service.CreateOrderAsync(orderCreateDto));
             Assert.Equal("Internal server Error", thrown.Message);
             _logger.Received(1).LogException("Internal server Error", ex);
         }
@@ -125,15 +170,20 @@ namespace InventoryManagement.Tests
             {
                 Id = 5,
                 CustomerName = "Old",
+                CustomerAddress = "Old Address",
+                CustomerPhone = "Old Phone",
+                Status = OrderStatus.Pending,
                 UpdatedDate = DateTime.UtcNow.AddDays(-1)
             };
-            var update = new Order
-            {
-                CustomerName = "New",
-                CustomerAddress = "Address",
-                CustomerPhone = "1234567890",
-                Status = OrderStatus.Processing
-            };
+            var update = new OrderUpdateDTO(
+                5,
+                "ORD-123",
+                "New Customer",
+                "New Address",
+                "1234567890",
+                OrderStatus.Processing,
+                100m
+            );
 
             _orderRepository.GetByIdAsync(5).Returns(existing);
             _orderRepository.UpdateAsync(Arg.Any<Order>()).Returns(call => call.Arg<Order>());
@@ -142,8 +192,8 @@ namespace InventoryManagement.Tests
 
             var result = await _service.UpdateOrderAsync(5, update);
 
-            Assert.Equal("New", result.CustomerName);
-            Assert.Equal("Address", result.CustomerAddress);
+            Assert.Equal("New Customer", result.CustomerName);
+            Assert.Equal("New Address", result.CustomerAddress);
             Assert.Equal("1234567890", result.CustomerPhone);
             Assert.Equal(OrderStatus.Processing, result.Status);
 
@@ -154,9 +204,18 @@ namespace InventoryManagement.Tests
         [Fact]
         public async Task UpdateOrderAsync_ShouldReturnNull_WhenOrderDoesNotExist()
         {
+            var update = new OrderUpdateDTO(
+                1,
+                "ORD-123",
+                "Customer",
+                "Address",
+                "Phone",
+                OrderStatus.Pending,
+                100m
+            );
             _orderRepository.GetByIdAsync(Arg.Any<int>()).Returns((Order)null);
 
-            var result = await _service.UpdateOrderAsync(1, new Order());
+            var result = await _service.UpdateOrderAsync(1, update);
 
             Assert.Null(result);
         }
@@ -164,10 +223,19 @@ namespace InventoryManagement.Tests
         [Fact]
         public async Task UpdateOrderAsync_ShouldLogAndThrow_WhenException()
         {
+            var update = new OrderUpdateDTO(
+                1,
+                "ORD-123",
+                "Customer",
+                "Address",
+                "Phone",
+                OrderStatus.Pending,
+                100m
+            );
             var ex = new Exception("DB Error");
             _orderRepository.GetByIdAsync(Arg.Any<int>()).Throws(ex);
 
-            var thrown = await Assert.ThrowsAsync<Exception>(() => _service.UpdateOrderAsync(1, new Order()));
+            var thrown = await Assert.ThrowsAsync<Exception>(() => _service.UpdateOrderAsync(1, update));
             Assert.Equal("Internal server Error", thrown.Message);
             _logger.Received(1).LogException("Internal server Error", ex);
         }

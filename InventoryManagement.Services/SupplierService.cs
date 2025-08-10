@@ -1,5 +1,6 @@
 ﻿using InventoryManagement.Data.Repositories.Interfaces;
 using InventoryManagement.Models;
+using InventoryManagement.Models.DTO;
 using InventoryManagement.Services.Interfaces;
 using InventoryManagement.Services.Utility;
 
@@ -59,13 +60,19 @@ namespace InventoryManagement.Services
         /// </summary>
         /// <param name="supplier">The supplier object to be created.</param>
         /// <returns>The created Supplier object.</returns>
-        public async Task<Supplier> CreateSupplierAsync(Supplier supplier)
+        public async Task<Supplier> CreateSupplierAsync(SupplierCreateDTO supplier)
         {
             try
             {
-                supplier.CreatedDate = DateTime.UtcNow;
-                supplier.UpdatedDate = DateTime.UtcNow;
-                return await _supplierRepository.AddAsync(supplier);
+                Supplier newSupplier = new Supplier();
+                newSupplier.Name = supplier.Name;
+                newSupplier.ContactPerson = supplier.ContactPerson;
+                newSupplier.Phone = supplier.Phone;
+                newSupplier.Email = supplier.Email;
+                newSupplier.Address = supplier.Address;
+                newSupplier.CreatedDate = DateTime.UtcNow;
+                newSupplier.UpdatedDate = DateTime.UtcNow;
+                return await _supplierRepository.AddAsync(newSupplier);
             }
             catch (Exception ex)
             {
@@ -80,7 +87,7 @@ namespace InventoryManagement.Services
         /// <param name="id">The ID of the supplier to update.</param>
         /// <param name="supplier">The supplier object containing updated values.</param>
         /// <returns>The updated Supplier object if the update was successful; otherwise, null.</returns>
-        public async Task<Supplier> UpdateSupplierAsync(int id, Supplier supplier)
+        public async Task<Supplier> UpdateSupplierAsync(int id, SupplierUpdateDTO supplier)
         {
             try
             {

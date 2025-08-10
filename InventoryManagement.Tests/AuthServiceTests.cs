@@ -6,11 +6,6 @@ using InventoryManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InventoryManagement.Tests
 {
@@ -52,7 +47,7 @@ namespace InventoryManagement.Tests
             var result = _service.Register(dto);
 
             Assert.False(result.Success);
-            Assert.Equal("PPassword not matched", result.Error);
+            Assert.Equal("Password not matched", result.Error);
         }
 
         [Fact]

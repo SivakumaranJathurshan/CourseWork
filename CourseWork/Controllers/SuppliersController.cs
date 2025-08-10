@@ -1,7 +1,7 @@
 ﻿using InventoryManagement.Models;
+using InventoryManagement.Models.DTO;
 using InventoryManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -45,7 +45,7 @@ namespace CourseWork.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Supplier>> CreateSupplier(Supplier supplier)
+        public async Task<ActionResult<Supplier>> CreateSupplier(SupplierCreateDTO supplier)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -55,7 +55,7 @@ namespace CourseWork.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Supplier>> UpdateSupplier(int id, Supplier supplier)
+        public async Task<ActionResult<Supplier>> UpdateSupplier(int id, SupplierUpdateDTO supplier)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

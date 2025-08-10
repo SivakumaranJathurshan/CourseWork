@@ -1,7 +1,7 @@
 ﻿using InventoryManagement.Models;
+using InventoryManagement.Models.DTO;
 using InventoryManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -55,7 +55,7 @@ namespace CourseWork.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Product>> CreateProduct(Product product)
+        public async Task<ActionResult<Product>> CreateProduct(ProductCreateDTO product)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -65,7 +65,7 @@ namespace CourseWork.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Product>> UpdateProduct(int id, Product product)
+        public async Task<ActionResult<Product>> UpdateProduct(int id, ProductUpdateDTO product)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

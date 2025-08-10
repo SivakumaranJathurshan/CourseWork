@@ -1,5 +1,6 @@
 ﻿using InventoryManagement.Data.Repositories.Interfaces;
 using InventoryManagement.Models;
+using InventoryManagement.Models.DTO;
 using InventoryManagement.Services.Interfaces;
 using InventoryManagement.Services.Utility;
 
@@ -30,7 +31,8 @@ namespace InventoryManagement.Services
         /// <returns>A list of all inventory items.</returns>
         public async Task<IEnumerable<InventoryItem>> GetAllInventoryAsync()
         {
-            try { 
+            try
+            {
                 return await _inventoryRepository.GetAllAsync();
             }
             catch (Exception ex)
@@ -47,7 +49,8 @@ namespace InventoryManagement.Services
         /// <returns>The matching inventory item or null if not found.</returns>
         public async Task<InventoryItem> GetInventoryByIdAsync(int id)
         {
-            try { 
+            try
+            {
                 return await _inventoryRepository.GetByIdAsync(id);
             }
             catch (Exception ex)
@@ -62,13 +65,19 @@ namespace InventoryManagement.Services
         /// </summary>
         /// <param name="inventoryItem">The inventory item to create.</param>
         /// <returns>The created inventory item.</returns>
-        public async Task<InventoryItem> CreateInventoryItemAsync(InventoryItem inventoryItem)
+        public async Task<InventoryItem> CreateInventoryItemAsync(InventoryItemCreateDTO inventoryItem)
         {
-            try { 
-                inventoryItem.CreatedDate = DateTime.UtcNow;
-                inventoryItem.UpdatedDate = DateTime.UtcNow;
-                inventoryItem.LastRestocked = DateTime.UtcNow;
-                return await _inventoryRepository.AddAsync(inventoryItem);
+            try
+            {
+                InventoryItem newInventoryItem = new InventoryItem();
+                newInventoryItem.Quantity = inventoryItem.Quantity;
+                newInventoryItem.MinimumStock = inventoryItem.MinimumStock;
+                newInventoryItem.MaximumStock = inventoryItem.MaximumStock;
+                newInventoryItem.UpdatedDate = DateTime.UtcNow;
+                newInventoryItem.CreatedDate = DateTime.UtcNow;
+                newInventoryItem.UpdatedDate = DateTime.UtcNow;
+                newInventoryItem.LastRestocked = DateTime.UtcNow;
+                return await _inventoryRepository.AddAsync(newInventoryItem);
             }
             catch (Exception ex)
             {
@@ -83,9 +92,10 @@ namespace InventoryManagement.Services
         /// <param name="id">The ID of the inventory item to update.</param>
         /// <param name="inventoryItem">The updated inventory data.</param>
         /// <returns>The updated inventory item, or null if not found.</returns>
-        public async Task<InventoryItem> UpdateInventoryItemAsync(int id, InventoryItem inventoryItem)
+        public async Task<InventoryItem> UpdateInventoryItemAsync(int id, InventoryItemUpdateDTO inventoryItem)
         {
-            try { 
+            try
+            {
                 var existingItem = await _inventoryRepository.GetByIdAsync(id);
                 if (existingItem == null) return null;
 
@@ -110,7 +120,8 @@ namespace InventoryManagement.Services
         /// <returns>True if deletion was successful; otherwise, false.</returns>
         public async Task<bool> DeleteInventoryItemAsync(int id)
         {
-            try { 
+            try
+            {
                 return await _inventoryRepository.DeleteAsync(id);
             }
             catch (Exception ex)
@@ -126,7 +137,8 @@ namespace InventoryManagement.Services
         /// <returns>A list of inventory items with associated products.</returns>
         public async Task<IEnumerable<InventoryItem>> GetInventoryWithProductsAsync()
         {
-            try { 
+            try
+            {
                 return await _inventoryRepository.GetInventoryWithProductsAsync();
             }
             catch (Exception ex)
@@ -143,7 +155,8 @@ namespace InventoryManagement.Services
         /// <returns>The matching inventory item, or null if not found.</returns>
         public async Task<InventoryItem> GetInventoryByProductIdAsync(int productId)
         {
-            try { 
+            try
+            {
                 return await _inventoryRepository.GetInventoryByProductIdAsync(productId);
             }
             catch (Exception ex)
@@ -159,7 +172,8 @@ namespace InventoryManagement.Services
         /// <returns>A list of low stock inventory items.</returns>
         public async Task<IEnumerable<InventoryItem>> GetLowStockItemsAsync()
         {
-            try { 
+            try
+            {
                 return await _inventoryRepository.GetLowStockItemsAsync();
             }
             catch (Exception ex)
@@ -177,7 +191,8 @@ namespace InventoryManagement.Services
         /// <returns>True if stock was updated successfully; otherwise, false.</returns>
         public async Task<bool> UpdateStockAsync(int productId, int quantity)
         {
-            try { 
+            try
+            {
                 var inventoryItem = await _inventoryRepository.GetInventoryByProductIdAsync(productId);
                 if (inventoryItem == null) return false;
 

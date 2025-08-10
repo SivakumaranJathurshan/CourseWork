@@ -1,7 +1,7 @@
 using InventoryManagement.Data.Repositories.Interfaces;
 using InventoryManagement.Models;
+using InventoryManagement.Models.DTO;
 using InventoryManagement.Services;
-using InventoryManagement.Services.Interfaces;
 using InventoryManagement.Services.Utility;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
@@ -80,22 +80,27 @@ namespace InventoryManagement.Tests
         [Fact]
         public async Task CreateCategoryAsync_SetsDatesAndReturnsCategory()
         {
-            var input = new Category { Name = "New Category" };
-            var resultCategory = new Category { Id = 1, Name = "New Category" };
+            var input = new CategoryCreateDTO("New Category", "Test Description");
+            var resultCategory = new Category { Id = 1, Name = "New Category", Description = "Test Description" };
 
             _categoryRepository.AddAsync(Arg.Any<Category>()).Returns(resultCategory);
 
             var result = await _service.CreateCategoryAsync(input);
 
             Assert.Equal(resultCategory, result);
-            Assert.True(input.CreatedDate <= DateTime.UtcNow);
-            Assert.True(input.UpdatedDate <= DateTime.UtcNow);
+
+            // Verify that AddAsync was called with a Category that has the correct properties
+            await _categoryRepository.Received(1).AddAsync(Arg.Is<Category>(c =>
+                c.Name == input.Name &&
+                c.Description == input.Description &&
+                c.CreatedDate <= DateTime.UtcNow &&
+                c.UpdatedDate <= DateTime.UtcNow));
         }
 
         [Fact]
         public async Task CreateCategoryAsync_ThrowsException_LogsAndWraps()
         {
-            var input = new Category { Name = "New" };
+            var input = new CategoryCreateDTO("New", "Test");
             var ex = new Exception("Insert failed");
 
             _categoryRepository.AddAsync(Arg.Any<Category>()).Throws(ex);
@@ -113,8 +118,8 @@ namespace InventoryManagement.Tests
         [Fact]
         public async Task UpdateCategoryAsync_UpdatesAndReturnsCategory()
         {
-            var existing = new Category { Id = 1, Name = "Old" };
-            var update = new Category { Name = "New", Description = "Desc" };
+            var existing = new Category { Id = 1, Name = "Old", Description = "Old Desc" };
+            var update = new CategoryUpdateDTO(1, "New", "New Desc");
 
             _categoryRepository.GetByIdAsync(1).Returns(existing);
             _categoryRepository.UpdateAsync(Arg.Any<Category>()).Returns(call => call.Arg<Category>());
@@ -122,15 +127,17 @@ namespace InventoryManagement.Tests
             var result = await _service.UpdateCategoryAsync(1, update);
 
             Assert.Equal("New", result.Name);
-            Assert.Equal("Desc", result.Description);
+            Assert.Equal("New Desc", result.Description);
+            Assert.True(result.UpdatedDate <= DateTime.UtcNow);
         }
 
         [Fact]
         public async Task UpdateCategoryAsync_CategoryNotFound_ReturnsNull()
         {
+            var update = new CategoryUpdateDTO(1, "New", "New Desc");
             _categoryRepository.GetByIdAsync(1).Returns((Category)null);
 
-            var result = await _service.UpdateCategoryAsync(1, new Category());
+            var result = await _service.UpdateCategoryAsync(1, update);
 
             Assert.Null(result);
         }
@@ -138,10 +145,11 @@ namespace InventoryManagement.Tests
         [Fact]
         public async Task UpdateCategoryAsync_ThrowsException_LogsAndWraps()
         {
+            var update = new CategoryUpdateDTO(1, "New", "New Desc");
             var ex = new Exception("DB failure");
             _categoryRepository.GetByIdAsync(1).Throws(ex);
 
-            var resultEx = await Assert.ThrowsAsync<Exception>(() => _service.UpdateCategoryAsync(1, new Category()));
+            var resultEx = await Assert.ThrowsAsync<Exception>(() => _service.UpdateCategoryAsync(1, update));
 
             Assert.Equal("Internal server Error", resultEx.Message);
             _logger.Received(1).LogException("Internal server Error", ex);

@@ -1,5 +1,6 @@
 ﻿using InventoryManagement.Data.Repositories.Interfaces;
 using InventoryManagement.Models;
+using InventoryManagement.Models.DTO;
 using InventoryManagement.Services;
 using InventoryManagement.Services.Utility;
 using NSubstitute;
@@ -79,21 +80,21 @@ namespace InventoryManagement.Tests
         [Fact]
         public async Task CreateInventoryItemAsync_ReturnsCreatedItem()
         {
-            var input = new InventoryItem { ProductId = 2, Quantity = 5 };
-            var output = new InventoryItem { Id = 1, ProductId = 2, Quantity = 5 };
+            var input = new InventoryItemCreateDTO(1, 5, 2, 50);
+            var output = new InventoryItem { Id = 1, ProductId = 1, Quantity = 5, MinimumStock = 2, MaximumStock = 50 };
 
-            _inventoryRepository.AddAsync(Arg.Any<InventoryItem>()).Returns(output);
+            InventoryItem capturedInventoryItem = null;
+            _inventoryRepository.AddAsync(Arg.Do<InventoryItem>(inventoryItem => capturedInventoryItem = inventoryItem)).Returns(output);
 
             var result = await _service.CreateInventoryItemAsync(input);
 
             Assert.Equal(output, result);
-            Assert.True(input.CreatedDate <= DateTime.UtcNow);
         }
 
         [Fact]
         public async Task CreateInventoryItemAsync_ThrowsException_Logs()
         {
-            var input = new InventoryItem { ProductId = 2, Quantity = 5 };
+            var input = new InventoryItemCreateDTO(1, 5, 2, 50);
             var ex = new Exception("Add failed");
 
             _inventoryRepository.AddAsync(Arg.Any<InventoryItem>()).Throws(ex);
@@ -111,8 +112,8 @@ namespace InventoryManagement.Tests
         [Fact]
         public async Task UpdateInventoryItemAsync_UpdatesAndReturnsItem()
         {
-            var existing = new InventoryItem { Id = 1, Quantity = 5 };
-            var update = new InventoryItem { Quantity = 10, MinimumStock = 1, MaximumStock = 20 };
+            var existing = new InventoryItem { Id = 1, Quantity = 5, MinimumStock = 1, MaximumStock = 10 };
+            var update = new InventoryItemUpdateDTO(1, 1, 10, 2, 20);
 
             _inventoryRepository.GetByIdAsync(1).Returns(existing);
             _inventoryRepository.UpdateAsync(Arg.Any<InventoryItem>()).Returns(call => call.Arg<InventoryItem>());
@@ -120,16 +121,18 @@ namespace InventoryManagement.Tests
             var result = await _service.UpdateInventoryItemAsync(1, update);
 
             Assert.Equal(10, result.Quantity);
-            Assert.Equal(1, result.MinimumStock);
+            Assert.Equal(2, result.MinimumStock);
             Assert.Equal(20, result.MaximumStock);
+            Assert.True(result.UpdatedDate <= DateTime.UtcNow);
         }
 
         [Fact]
         public async Task UpdateInventoryItemAsync_ItemNotFound_ReturnsNull()
         {
+            var update = new InventoryItemUpdateDTO(1, 1, 10, 1, 20);
             _inventoryRepository.GetByIdAsync(1).Returns((InventoryItem)null);
 
-            var result = await _service.UpdateInventoryItemAsync(1, new InventoryItem());
+            var result = await _service.UpdateInventoryItemAsync(1, update);
 
             Assert.Null(result);
         }
@@ -137,10 +140,11 @@ namespace InventoryManagement.Tests
         [Fact]
         public async Task UpdateInventoryItemAsync_ThrowsException_Logs()
         {
+            var update = new InventoryItemUpdateDTO(1, 1, 10, 1, 20);
             var ex = new Exception("Error");
             _inventoryRepository.GetByIdAsync(1).Throws(ex);
 
-            var thrown = await Assert.ThrowsAsync<Exception>(() => _service.UpdateInventoryItemAsync(1, new InventoryItem()));
+            var thrown = await Assert.ThrowsAsync<Exception>(() => _service.UpdateInventoryItemAsync(1, update));
 
             Assert.Equal("Internal server Error", thrown.Message);
             _logger.Received(1).LogException("Internal server Error", ex);

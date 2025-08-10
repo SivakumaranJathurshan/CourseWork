@@ -1,7 +1,7 @@
 ﻿using InventoryManagement.Models;
+using InventoryManagement.Models.DTO;
 using InventoryManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -45,7 +45,7 @@ namespace CourseWork.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Category>> CreateCategory(Category category)
+        public async Task<ActionResult<Category>> CreateCategory(CategoryCreateDTO category)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -55,7 +55,7 @@ namespace CourseWork.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Category>> UpdateCategory(int id, Category category)
+        public async Task<ActionResult<Category>> UpdateCategory(int id, CategoryUpdateDTO category)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

@@ -1,5 +1,6 @@
 ﻿using InventoryManagement.Data.Repositories.Interfaces;
 using InventoryManagement.Models;
+using InventoryManagement.Models.DTO;
 using InventoryManagement.Services.Interfaces;
 using InventoryManagement.Services.Utility;
 
@@ -33,7 +34,8 @@ namespace InventoryManagement.Services
         /// <returns>A list of all orders.</returns>
         public async Task<IEnumerable<Order>> GetAllOrdersAsync()
         {
-            try { 
+            try
+            {
                 return await _orderRepository.GetAllAsync();
             }
             catch (Exception ex)
@@ -50,7 +52,8 @@ namespace InventoryManagement.Services
         /// <returns>The order with its items if found; otherwise, null.</returns>
         public async Task<Order> GetOrderByIdAsync(int id)
         {
-            try { 
+            try
+            {
                 return await _orderRepository.GetOrderWithItemsAsync(id);
             }
             catch (Exception ex)
@@ -65,21 +68,27 @@ namespace InventoryManagement.Services
         /// </summary>
         /// <param name="order">The order to create.</param>
         /// <returns>The created order object.</returns>
-        public async Task<Order> CreateOrderAsync(Order order)
+        public async Task<Order> CreateOrderAsync(OrderCreateDTO order)
         {
-            try { 
-                order.OrderNumber = GenerateOrderNumber();
-                order.CreatedDate = DateTime.UtcNow;
-                order.UpdatedDate = DateTime.UtcNow;
-                order.OrderDate = DateTime.UtcNow;
+            try
+            {
+                Order newOrder = new Order();
+                newOrder.CustomerName = order.CustomerName;
+                newOrder.CustomerAddress = order.CustomerAddress;
+                newOrder.CustomerPhone = order.CustomerPhone;
+                newOrder.Status = order.Status;
+                newOrder.OrderNumber = GenerateOrderNumber();
+                newOrder.CreatedDate = DateTime.UtcNow;
+                newOrder.UpdatedDate = DateTime.UtcNow;
+                newOrder.OrderDate = DateTime.UtcNow;
 
                 // Calculate total amount
-                order.TotalAmount = order.OrderItems.Sum(oi => oi.TotalPrice);
+                newOrder.TotalAmount = newOrder.OrderItems.Sum(oi => oi.TotalPrice);
 
-                var createdOrder = await _orderRepository.AddAsync(order);
+                var createdOrder = await _orderRepository.AddAsync(newOrder);
 
                 // Update inventory
-                foreach (var item in order.OrderItems)
+                foreach (var item in newOrder.OrderItems)
                 {
                     await _inventoryService.UpdateStockAsync(item.ProductId, -item.Quantity);
                 }
@@ -99,9 +108,10 @@ namespace InventoryManagement.Services
         /// <param name="id">The ID of the order to update.</param>
         /// <param name="order">The updated order data.</param>
         /// <returns>The updated order if found; otherwise, null.</returns>
-        public async Task<Order> UpdateOrderAsync(int id, Order order)
+        public async Task<Order> UpdateOrderAsync(int id, OrderUpdateDTO order)
         {
-            try { 
+            try
+            {
                 var existingOrder = await _orderRepository.GetByIdAsync(id);
                 if (existingOrder == null) return null;
 
@@ -127,7 +137,8 @@ namespace InventoryManagement.Services
         /// <returns>True if deletion was successful; otherwise, false.</returns>
         public async Task<bool> DeleteOrderAsync(int id)
         {
-            try { 
+            try
+            {
                 return await _orderRepository.DeleteAsync(id);
             }
             catch (Exception ex)
@@ -143,7 +154,8 @@ namespace InventoryManagement.Services
         /// <returns>A list of orders with order items.</returns>
         public async Task<IEnumerable<Order>> GetOrdersWithItemsAsync()
         {
-            try { 
+            try
+            {
                 return await _orderRepository.GetOrdersWithItemsAsync();
             }
             catch (Exception ex)
@@ -160,7 +172,8 @@ namespace InventoryManagement.Services
         /// <returns>The order if found; otherwise, null.</returns>
         public async Task<Order> GetOrderByNumberAsync(string orderNumber)
         {
-            try { 
+            try
+            {
                 return await _orderRepository.GetOrderByNumberAsync(orderNumber);
             }
             catch (Exception ex)
@@ -177,7 +190,8 @@ namespace InventoryManagement.Services
         /// <returns>A list of orders matching the status.</returns>
         public async Task<IEnumerable<Order>> GetOrdersByStatusAsync(OrderStatus status)
         {
-            try { 
+            try
+            {
                 return await _orderRepository.GetOrdersByStatusAsync(status);
             }
             catch (Exception ex)
@@ -219,7 +233,8 @@ namespace InventoryManagement.Services
         /// <returns>A unique string representing the order number.</returns>
         private string GenerateOrderNumber()
         {
-            try { 
+            try
+            {
                 return $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..8].ToUpper()}";
             }
             catch (Exception ex)

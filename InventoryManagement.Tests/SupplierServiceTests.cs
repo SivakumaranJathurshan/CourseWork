@@ -2,6 +2,7 @@
 
 using InventoryManagement.Data.Repositories.Interfaces;
 using InventoryManagement.Models;
+using InventoryManagement.Models.DTO;
 using InventoryManagement.Services;
 using InventoryManagement.Services.Utility;
 using NSubstitute;
@@ -84,23 +85,42 @@ namespace InventoryManagement.Tests
         [Fact]
         public async Task CreateSupplierAsync_ShouldReturnCreatedSupplier()
         {
-            var supplier = new Supplier { Name = "New Supplier" };
-            _supplierRepository.AddAsync(Arg.Any<Supplier>()).Returns(callInfo => callInfo.Arg<Supplier>());
+            var supplierDto = new SupplierCreateDTO("New Supplier", "John Doe", "555-1234", "john@supplier.com", "123 Main St");
+            var createdSupplier = new Supplier
+            {
+                Id = 1,
+                Name = "New Supplier",
+                ContactPerson = "John Doe",
+                Phone = "555-1234",
+                Email = "john@supplier.com",
+                Address = "123 Main St"
+            };
 
-            var result = await _service.CreateSupplierAsync(supplier);
+            _supplierRepository.AddAsync(Arg.Any<Supplier>()).Returns(createdSupplier);
 
-            Assert.Equal(supplier.Name, result.Name);
-            Assert.True(result.CreatedDate <= DateTime.UtcNow);
-            Assert.True(result.UpdatedDate <= DateTime.UtcNow);
+            var result = await _service.CreateSupplierAsync(supplierDto);
+
+            Assert.Equal(createdSupplier, result);
+
+            // Verify that AddAsync was called with a Supplier that has the correct properties
+            await _supplierRepository.Received(1).AddAsync(Arg.Is<Supplier>(s =>
+                s.Name == supplierDto.Name &&
+                s.ContactPerson == supplierDto.ContactPerson &&
+                s.Phone == supplierDto.Phone &&
+                s.Email == supplierDto.Email &&
+                s.Address == supplierDto.Address &&
+                s.CreatedDate <= DateTime.UtcNow &&
+                s.UpdatedDate <= DateTime.UtcNow));
         }
 
         [Fact]
         public async Task CreateSupplierAsync_ShouldLogAndThrow_WhenExceptionOccurs()
         {
+            var supplierDto = new SupplierCreateDTO("New Supplier", "John Doe", "555-1234", "john@supplier.com", "123 Main St");
             var ex = new Exception("Insert failed");
             _supplierRepository.AddAsync(Arg.Any<Supplier>()).Throws(ex);
 
-            var result = await Assert.ThrowsAsync<Exception>(() => _service.CreateSupplierAsync(new Supplier()));
+            var result = await Assert.ThrowsAsync<Exception>(() => _service.CreateSupplierAsync(supplierDto));
             Assert.Equal("Internal server Error", result.Message);
             _logger.Received(1).LogException("Internal server Error", ex);
         }
@@ -112,25 +132,37 @@ namespace InventoryManagement.Tests
         [Fact]
         public async Task UpdateSupplierAsync_ShouldUpdateAndReturnSupplier_WhenFound()
         {
-            var supplier = new Supplier { Name = "Updated", ContactPerson = "Jane" };
-            var existing = new Supplier { Id = 1, Name = "Old", ContactPerson = "John" };
+            var updateDto = new SupplierUpdateDTO(1, "Updated Supplier", "Jane Smith", "555-5678", "jane@supplier.com", "456 Oak Ave");
+            var existing = new Supplier
+            {
+                Id = 1,
+                Name = "Old Supplier",
+                ContactPerson = "John Doe",
+                Phone = "555-1234",
+                Email = "john@supplier.com",
+                Address = "123 Main St"
+            };
 
             _supplierRepository.GetByIdAsync(1).Returns(existing);
             _supplierRepository.UpdateAsync(Arg.Any<Supplier>()).Returns(call => call.Arg<Supplier>());
 
-            var result = await _service.UpdateSupplierAsync(1, supplier);
+            var result = await _service.UpdateSupplierAsync(1, updateDto);
 
-            Assert.Equal("Updated", result.Name);
-            Assert.Equal("Jane", result.ContactPerson);
+            Assert.Equal("Updated Supplier", result.Name);
+            Assert.Equal("Jane Smith", result.ContactPerson);
+            Assert.Equal("555-5678", result.Phone);
+            Assert.Equal("jane@supplier.com", result.Email);
+            Assert.Equal("456 Oak Ave", result.Address);
             Assert.True(result.UpdatedDate <= DateTime.UtcNow);
         }
 
         [Fact]
         public async Task UpdateSupplierAsync_ShouldReturnNull_WhenNotFound()
         {
+            var updateDto = new SupplierUpdateDTO(1, "Updated Supplier", "Jane Smith", "555-5678", "jane@supplier.com", "456 Oak Ave");
             _supplierRepository.GetByIdAsync(1).Returns((Supplier)null);
 
-            var result = await _service.UpdateSupplierAsync(1, new Supplier());
+            var result = await _service.UpdateSupplierAsync(1, updateDto);
 
             Assert.Null(result);
         }
@@ -138,10 +170,11 @@ namespace InventoryManagement.Tests
         [Fact]
         public async Task UpdateSupplierAsync_ShouldLogAndThrow_WhenExceptionOccurs()
         {
+            var updateDto = new SupplierUpdateDTO(1, "Updated Supplier", "Jane Smith", "555-5678", "jane@supplier.com", "456 Oak Ave");
             var ex = new Exception("Update failed");
             _supplierRepository.GetByIdAsync(Arg.Any<int>()).Throws(ex);
 
-            var result = await Assert.ThrowsAsync<Exception>(() => _service.UpdateSupplierAsync(1, new Supplier()));
+            var result = await Assert.ThrowsAsync<Exception>(() => _service.UpdateSupplierAsync(1, updateDto));
             Assert.Equal("Internal server Error", result.Message);
             _logger.Received(1).LogException("Internal server Error", ex);
         }

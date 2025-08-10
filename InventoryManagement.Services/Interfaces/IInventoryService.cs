@@ -1,9 +1,5 @@
 ﻿using InventoryManagement.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using InventoryManagement.Models.DTO;
 
 namespace InventoryManagement.Services.Interfaces
 {
@@ -11,8 +7,8 @@ namespace InventoryManagement.Services.Interfaces
     {
         Task<IEnumerable<InventoryItem>> GetAllInventoryAsync();
         Task<InventoryItem> GetInventoryByIdAsync(int id);
-        Task<InventoryItem> CreateInventoryItemAsync(InventoryItem inventoryItem);
-        Task<InventoryItem> UpdateInventoryItemAsync(int id, InventoryItem inventoryItem);
+        Task<InventoryItem> CreateInventoryItemAsync(InventoryItemCreateDTO inventoryItem);
+        Task<InventoryItem> UpdateInventoryItemAsync(int id, InventoryItemUpdateDTO inventoryItem);
         Task<bool> DeleteInventoryItemAsync(int id);
         Task<IEnumerable<InventoryItem>> GetInventoryWithProductsAsync();
         Task<InventoryItem> GetInventoryByProductIdAsync(int productId);

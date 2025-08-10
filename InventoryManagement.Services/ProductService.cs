@@ -1,5 +1,6 @@
 ﻿using InventoryManagement.Data.Repositories.Interfaces;
 using InventoryManagement.Models;
+using InventoryManagement.Models.DTO;
 using InventoryManagement.Services.Interfaces;
 using InventoryManagement.Services.Utility;
 
@@ -25,7 +26,8 @@ namespace InventoryManagement.Services
         /// <returns>A list of all products.</returns>
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
-            try { 
+            try
+            {
                 return await _productRepository.GetAllAsync();
             }
             catch (Exception ex)
@@ -42,7 +44,8 @@ namespace InventoryManagement.Services
         /// <returns>The product with detailed information.</returns>
         public async Task<Product> GetProductByIdAsync(int id)
         {
-            try { 
+            try
+            {
                 return await _productRepository.GetProductWithDetailsAsync(id);
             }
             catch (Exception ex)
@@ -57,13 +60,20 @@ namespace InventoryManagement.Services
         /// </summary>
         /// <param name="product">The product entity to create.</param>
         /// <returns>The created product entity.</returns>
-        public async Task<Product> CreateProductAsync(Product product)
+        public async Task<Product> CreateProductAsync(ProductCreateDTO product)
         {
             try
             {
-                product.CreatedDate = DateTime.UtcNow;
-                product.UpdatedDate = DateTime.UtcNow;
-                return await _productRepository.AddAsync(product);
+                Product newProduct = new Product();
+                newProduct.Name = product.Name;
+                newProduct.Description = product.Description;
+                newProduct.SKU = product.SKU;
+                newProduct.Price = product.Price;
+                newProduct.CategoryId = product.CategoryId;
+                newProduct.SupplierId = product.SupplierId;
+                newProduct.CreatedDate = DateTime.UtcNow;
+                newProduct.UpdatedDate = DateTime.UtcNow;
+                return await _productRepository.AddAsync(newProduct);
             }
             catch (Exception ex)
             {
@@ -78,9 +88,10 @@ namespace InventoryManagement.Services
         /// <param name="id">The ID of the product to update.</param>
         /// <param name="product">The updated product data.</param>
         /// <returns>The updated product entity, or null if not found.</returns>
-        public async Task<Product> UpdateProductAsync(int id, Product product)
+        public async Task<Product> UpdateProductAsync(int id, ProductUpdateDTO product)
         {
-            try { 
+            try
+            {
                 var existingProduct = await _productRepository.GetByIdAsync(id);
                 if (existingProduct == null) return null;
 
@@ -108,7 +119,8 @@ namespace InventoryManagement.Services
         /// <returns>True if deleted successfully, false otherwise.</returns>
         public async Task<bool> DeleteProductAsync(int id)
         {
-            try { 
+            try
+            {
                 return await _productRepository.DeleteAsync(id);
             }
             catch (Exception ex)
@@ -124,7 +136,8 @@ namespace InventoryManagement.Services
         /// <returns>A list of products with full details.</returns>
         public async Task<IEnumerable<Product>> GetProductsWithDetailsAsync()
         {
-            try { 
+            try
+            {
                 return await _productRepository.GetProductsWithDetailsAsync();
             }
             catch (Exception ex)
@@ -141,7 +154,8 @@ namespace InventoryManagement.Services
         /// <returns>A list of products in the given category.</returns>
         public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId)
         {
-            try { 
+            try
+            {
                 return await _productRepository.GetProductsByCategoryAsync(categoryId);
             }
             catch (Exception ex)
@@ -158,7 +172,8 @@ namespace InventoryManagement.Services
         /// <returns>The product with the matching SKU.</returns>
         public async Task<Product> GetProductBySkuAsync(string sku)
         {
-            try { 
+            try
+            {
                 return await _productRepository.GetProductBySkuAsync(sku);
             }
             catch (Exception ex)

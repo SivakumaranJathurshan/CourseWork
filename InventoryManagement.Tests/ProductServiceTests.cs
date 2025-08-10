@@ -1,5 +1,6 @@
 ﻿using InventoryManagement.Data.Repositories.Interfaces;
 using InventoryManagement.Models;
+using InventoryManagement.Models.DTO;
 using InventoryManagement.Services;
 using InventoryManagement.Services.Utility;
 using NSubstitute;
@@ -79,22 +80,40 @@ namespace InventoryManagement.Tests
         [Fact]
         public async Task CreateProductAsync_SetsDates_And_ReturnsProduct()
         {
-            var input = new Product { Name = "New", SKU = "ABC123" };
-            var saved = new Product { Id = 1, Name = "New", SKU = "ABC123" };
+            var input = new ProductCreateDTO("New Product", "Test Description", "ABC123", 29.99m, 1, 2);
+            var saved = new Product
+            {
+                Id = 1,
+                Name = "New Product",
+                Description = "Test Description",
+                SKU = "ABC123",
+                Price = 29.99m,
+                CategoryId = 1,
+                SupplierId = 2
+            };
 
             _productRepository.AddAsync(Arg.Any<Product>()).Returns(saved);
 
             var result = await _service.CreateProductAsync(input);
 
             Assert.Equal(saved, result);
-            Assert.True(input.CreatedDate <= DateTime.UtcNow);
-            Assert.True(input.UpdatedDate <= DateTime.UtcNow);
+
+            // Verify that AddAsync was called with a Product that has the correct properties
+            await _productRepository.Received(1).AddAsync(Arg.Is<Product>(p =>
+                p.Name == input.Name &&
+                p.Description == input.Description &&
+                p.SKU == input.SKU &&
+                p.Price == input.Price &&
+                p.CategoryId == input.CategoryId &&
+                p.SupplierId == input.SupplierId &&
+                p.CreatedDate <= DateTime.UtcNow &&
+                p.UpdatedDate <= DateTime.UtcNow));
         }
 
         [Fact]
         public async Task CreateProductAsync_ThrowsException_LogsAndRethrows()
         {
-            var input = new Product { Name = "New", SKU = "ABC123" };
+            var input = new ProductCreateDTO("New Product", "Test Description", "ABC123", 29.99m, 1, 2);
             var ex = new Exception("Create failed");
 
             _productRepository.AddAsync(Arg.Any<Product>()).Throws(ex);
@@ -112,36 +131,47 @@ namespace InventoryManagement.Tests
         [Fact]
         public async Task UpdateProductAsync_UpdatesAndReturnsProduct()
         {
-            var existing = new Product { Id = 1, Name = "Old", SKU = "SKU1" };
-            var update = new Product
+            var existing = new Product
             {
-                Name = "New",
-                Description = "Updated",
-                SKU = "SKU2",
-                Price = 10.5m,
-                CategoryId = 2,
-                SupplierId = 3
+                Id = 1,
+                Name = "Old",
+                Description = "Old Desc",
+                SKU = "SKU1",
+                Price = 5.0m,
+                CategoryId = 1,
+                SupplierId = 1
             };
+            var update = new ProductUpdateDTO(
+                1,
+                "New Product",
+                "Updated Description",
+                "SKU2",
+                10.5m,
+                2,
+                3
+            );
 
             _productRepository.GetByIdAsync(1).Returns(existing);
             _productRepository.UpdateAsync(Arg.Any<Product>()).Returns(call => call.Arg<Product>());
 
             var result = await _service.UpdateProductAsync(1, update);
 
-            Assert.Equal("New", result.Name);
-            Assert.Equal("Updated", result.Description);
+            Assert.Equal("New Product", result.Name);
+            Assert.Equal("Updated Description", result.Description);
             Assert.Equal("SKU2", result.SKU);
             Assert.Equal(10.5m, result.Price);
             Assert.Equal(2, result.CategoryId);
             Assert.Equal(3, result.SupplierId);
+            Assert.True(result.UpdatedDate <= DateTime.UtcNow);
         }
 
         [Fact]
         public async Task UpdateProductAsync_ProductNotFound_ReturnsNull()
         {
+            var update = new ProductUpdateDTO(1, "Product", "Description", "SKU", 10.0m, 1, 1);
             _productRepository.GetByIdAsync(1).Returns((Product)null);
 
-            var result = await _service.UpdateProductAsync(1, new Product());
+            var result = await _service.UpdateProductAsync(1, update);
 
             Assert.Null(result);
         }
@@ -149,10 +179,11 @@ namespace InventoryManagement.Tests
         [Fact]
         public async Task UpdateProductAsync_ThrowsException_LogsAndRethrows()
         {
+            var update = new ProductUpdateDTO(1, "Product", "Description", "SKU", 10.0m, 1, 1);
             var ex = new Exception("Update failed");
             _productRepository.GetByIdAsync(1).Throws(ex);
 
-            var thrown = await Assert.ThrowsAsync<Exception>(() => _service.UpdateProductAsync(1, new Product()));
+            var thrown = await Assert.ThrowsAsync<Exception>(() => _service.UpdateProductAsync(1, update));
 
             Assert.Equal("Internal server Error", thrown.Message);
             _logger.Received(1).LogException("Internal server Error", ex);

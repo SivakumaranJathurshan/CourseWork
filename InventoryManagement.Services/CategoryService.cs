@@ -1,12 +1,8 @@
 ﻿using InventoryManagement.Data.Repositories.Interfaces;
 using InventoryManagement.Models;
+using InventoryManagement.Models.DTO;
 using InventoryManagement.Services.Interfaces;
 using InventoryManagement.Services.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InventoryManagement.Services
 {
@@ -69,13 +65,16 @@ namespace InventoryManagement.Services
         /// </summary>
         /// <param name="category">The category object to create.</param>
         /// <returns>The created category with updated information.</returns>
-        public async Task<Category> CreateCategoryAsync(Category category)
+        public async Task<Category> CreateCategoryAsync(CategoryCreateDTO category)
         {
             try
             {
-                category.CreatedDate = DateTime.UtcNow;
-                category.UpdatedDate = DateTime.UtcNow;
-                return await _categoryRepository.AddAsync(category);
+                Category newCategory = new Category();
+                newCategory.Name = category.Name;
+                newCategory.Description = category.Description;
+                newCategory.CreatedDate = DateTime.UtcNow;
+                newCategory.UpdatedDate = DateTime.UtcNow;
+                return await _categoryRepository.AddAsync(newCategory);
             }
             catch (Exception ex)
             {
@@ -90,9 +89,10 @@ namespace InventoryManagement.Services
         /// <param name="id">The ID of the category to update.</param>
         /// <param name="category">The updated category data.</param>
         /// <returns>The updated category, or null if not found.</returns>
-        public async Task<Category> UpdateCategoryAsync(int id, Category category)
+        public async Task<Category> UpdateCategoryAsync(int id, CategoryUpdateDTO category)
         {
-            try { 
+            try
+            {
                 var existingCategory = await _categoryRepository.GetByIdAsync(id);
                 if (existingCategory == null) return null;
 
@@ -116,7 +116,8 @@ namespace InventoryManagement.Services
         /// <returns>True if the category was deleted successfully, otherwise false.</returns>
         public async Task<bool> DeleteCategoryAsync(int id)
         {
-            try { 
+            try
+            {
                 return await _categoryRepository.DeleteAsync(id);
             }
             catch (Exception ex)
@@ -132,7 +133,8 @@ namespace InventoryManagement.Services
         /// <returns>A collection of categories, each including a list of its products.</returns>
         public async Task<IEnumerable<Category>> GetCategoriesWithProductsAsync()
         {
-            try { 
+            try
+            {
                 return await _categoryRepository.GetCategoriesWithProductsAsync();
             }
             catch (Exception ex)
